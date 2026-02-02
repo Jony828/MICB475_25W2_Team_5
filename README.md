@@ -1,1 +1,1 @@
-# MICB475_25W2_Team_5
+# MICB475: Data Science Research in Microbiology and Immunology
