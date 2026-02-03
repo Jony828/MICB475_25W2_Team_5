@@ -18,3 +18,6 @@ How does gut microbiome composition and diet‑related microbial dysbiosis modul
 
 
 ### Meeting Notes ###
+- we found a paper that showed a potential link between gene expressions to analyze the comparison between the gut microbiome of in Parkinson's and Gastric Conditions
+- we want to profile parkinsons, gastric cancer, and healthy patients
+- Another Idea: could potentially also look at patients with higher BMI and REM sleep in Parkinson's patients
