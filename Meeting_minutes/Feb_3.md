@@ -6,4 +6,15 @@
 - Discuss the best research question for our project
 - Outline next steps for individuals once our research question has been confirmed
 
+#### Barcode paper ####
+- determined 15 DEGs between gastric cancer (GC) and Parkinson's disease (PD)
+- 3 gene ontology (GO) biological process terms common
+  - Positive regulation of proteasomal ubiquitin-dependent protein catabolic process
+  - Myeloid cell differentiation
+  - Leukocyte differentiation
+
+#### Potential Research Question ####
+How does gut microbiome composition and diet‑related microbial dysbiosis modulate the expression of differentially expressed genes and the shared gene‑ontology biological processes that are common between Parkinson’s disease and gastric cancer?
+
+
 ### Meeting Notes ###
