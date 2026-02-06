@@ -1,7 +1,9 @@
-#Create a new directory for team 6
+#!/bin/bash
+
+# Create a new directory for team 6
 (qiime2-amplicon-2025.4) root@stu-1130:/data# mkdir team5_parkinsons_data
 
-#Go to /data/team5_parkinsons_data
+# Go to /data/team5_parkinsons_data
 
 # Importing and demultiplex data using manifest (detached screen named parkinsons-import)
 qiime tools import \
