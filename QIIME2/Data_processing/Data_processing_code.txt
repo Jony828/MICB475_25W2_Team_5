@@ -26,3 +26,9 @@ qiime dada2 denoise-single \
   --o-representative-sequences parkinsons_rep-seqs.qza \
   --o-table parkinsons_table.qza \
   --o-denoising-stats denoising-stats.qza
+
+# Visualizing ASVs stats
+qiime feature-table summarize \
+  --i-table parkinsons_table.qza \
+  --o-visualization parkinsons_table.qzv \
+  --m-sample-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt
