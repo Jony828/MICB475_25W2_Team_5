@@ -20,7 +20,7 @@ qiime demux summarize \
 # Determine ASVs with DADA2 (detached screen named denoising)
 # Creating representative sequences and table
 qiime dada2 denoise-single \
-  --i-demultiplexed-seqs team5_parkinsons_demux_seqs_demux.qza \
+  --i-demultiplexed-seqs team5_parkinsons_demux_seqs.qza \
   --p-trim-left 0 \
   --p-trunc-len 251 \
   --o-representative-sequences parkinsons_rep-seqs.qza \
