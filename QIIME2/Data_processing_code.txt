@@ -7,5 +7,5 @@
 qiime tools import \
   --type "SampleData[PairedEndSequencesWithQuality]" \
   --input-format PairedEndFastqManifestPhred33V2 \
-  --input-path /mnt/datasets/project_2/parkinsons/parkinsons_manifest.tsv \
+  --input-path /datasets/project_2/parkinsons/parkinsons_manifest.tsv \
   --output-path /data/team5_parkinsons_data/team5_parkinsons_paired_demux_seqs.qza
