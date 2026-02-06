@@ -5,7 +5,8 @@
 
 # Importing and demultiplex data using manifest (run overnight - detached screen named parkinsons-import)
 qiime tools import \
-  --type "SampleData[PairedEndSequencesWithQuality]" \
-  --input-format PairedEndFastqManifestPhred33V2 \
+  --type "SampleData[SequencesWithQuality]" \
+  --input-format SingleEndFastqManifestPhred33V2 \
   --input-path /datasets/project_2/parkinsons/parkinsons_manifest.tsv \
-  --output-path /data/team5_parkinsons_data/team5_parkinsons_paired_demux_seqs.qza
+  --output-path /data/team5_parkinsons_data/team5_parkinsons_demux_seqs.qza
+
