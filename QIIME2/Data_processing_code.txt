@@ -10,3 +10,9 @@ qiime tools import \
   --input-path /datasets/project_2/parkinsons/parkinsons_manifest.tsv \
   --output-path /data/team5_parkinsons_data/team5_parkinsons_demux_seqs.qza
 
+# Creating a visualization of the demultiplexed samples
+qiime demux summarize \
+  --i-data team5_parkinsons_demux_seqs.qza \
+  --o-visualization team5_parkinsons_demux_seqs.qzv 
+
+# Transferred team5_parkinsons_demux_seqs.qzv onto local computer and visualized on view.QIIME2.org
