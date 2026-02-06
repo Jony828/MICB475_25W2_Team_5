@@ -3,7 +3,7 @@
 
 #Go to /data/team5_parkinsons_data
 
-# Importing and demultiplex data using manifest (run overnight - detached screen named parkinsons-import)
+# Importing and demultiplex data using manifest (detached screen named parkinsons-import)
 qiime tools import \
   --type "SampleData[SequencesWithQuality]" \
   --input-format SingleEndFastqManifestPhred33V2 \
@@ -16,3 +16,13 @@ qiime demux summarize \
   --o-visualization team5_parkinsons_demux_seqs.qzv 
 
 # Transferred team5_parkinsons_demux_seqs.qzv onto local computer and visualized on view.QIIME2.org
+
+# Determine ASVs with DADA2 (detached screen named denoising)
+# Creating representative sequences and table
+qiime dada2 denoise-single \
+  --i-demultiplexed-seqs team5_parkinsons_demux_seqs_demux.qza \
+  --p-trim-left 0 \
+  --p-trunc-len 251 \
+  --o-representative-sequences parkinsons_rep-seqs.qza \
+  --o-table parkinsons_table.qza \
+  --o-denoising-stats denoising-stats.qza
