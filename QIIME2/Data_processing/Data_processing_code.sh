@@ -38,3 +38,26 @@ qiime feature-table summarize \
 qiime feature-table tabulate-seqs \
   --i-data parkinsons_rep-seqs.qza \
   --o-visualization parkinsons_rep-seqs.qzv
+
+# Data processing for GC dataset
+
+# Create a new directory for the gastric cancer dataset within data folder and navigate to it
+(qiime2-amplicon-2025.4) root@stu-1130:/data# mkdir team5_gc_data
+(qiime2-amplicon-2025.4) root@stu-1130:/data# cd team5_gc_data
+
+# Import and demultiplex gastric cancer sequencing data using a manifest file
+qiime tools import \
+  --type "SampleData[SequencesWithQuality]" \
+  --input-format SingleEndFastqManifestPhred33V2 \
+  --input-path /datasets/project_2/gastric_cancer/gastric_cancer_manifest.tsv \
+  --output-path team5_gc_demux_seqs.qza
+
+# Create a visualization of the demultiplexed gastric cancer sequences
+qiime demux summarize \
+  --i-data team5_gc_demux_seqs.qza \
+  --o-visualization team5_gc_demux_seqs.qzv
+
+# Transferred team5_gc_demux_seqs.qzv to local computer
+# and visualized quality metrics using view.qiime2.org
+
+
