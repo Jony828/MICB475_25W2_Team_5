@@ -57,7 +57,17 @@ qiime demux summarize \
   --i-data team5_gc_demux_seqs.qza \
   --o-visualization team5_gc_demux_seqs.qzv
 
-# Transferred team5_gc_demux_seqs.qzv to local computer
-# and visualized quality metrics using view.qiime2.org
+# Transferred team5_gc_demux_seqs.qzv to local computer and visualized quality metrics using view.qiime2.org
+
+# Based on high quality scores, determined that trimming is not required, confirmed with Ritu, and ran denoising:
+
+qiime dada2 denoise-single \
+  --i-demultiplexed-seqs team5_gc_demux_seqs.qza \
+  --p-trim-left 0 \
+  --p-trunc-len 0 \
+  --o-representative-sequences gc_rep-seqs.qza \
+  --o-table gc_table.qza \
+  --o-denoising-stats gc-denoising-stats.qza
+
 
 
