@@ -60,7 +60,6 @@ qiime demux summarize \
 # Transferred team5_gc_demux_seqs.qzv to local computer and visualized quality metrics using view.qiime2.org
 
 # Based on high quality scores, determined that trimming is not required, confirmed with Ritu, and ran denoising:
-
 qiime dada2 denoise-single \
   --i-demultiplexed-seqs team5_gc_demux_seqs.qza \
   --p-trim-left 0 \
@@ -69,5 +68,14 @@ qiime dada2 denoise-single \
   --o-table gc_table.qza \
   --o-denoising-stats gc-denoising-stats.qza
 
+# Visualizing ASVs stats
+qiime feature-table summarize \
+  --i-table gc_table.qza \
+  --o-visualization gc_table.qzv \
+  --m-sample-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv
+
+  qiime feature-table tabulate-seqs \
+  --i-data gc_rep-seqs.qza \
+  --o-visualization gc_rep-seqs.qzv
 
 
