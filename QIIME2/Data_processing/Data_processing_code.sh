@@ -74,7 +74,7 @@ qiime feature-table summarize \
   --o-visualization gc_table.qzv \
   --m-sample-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv
 
-  qiime feature-table tabulate-seqs \
+qiime feature-table tabulate-seqs \
   --i-data gc_rep-seqs.qza \
   --o-visualization gc_rep-seqs.qzv
 
