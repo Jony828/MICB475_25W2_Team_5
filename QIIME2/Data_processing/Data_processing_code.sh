@@ -64,6 +64,8 @@ qiime feature-table summarize \
   --o-visualization parkinsons_table-no-mitochondria-no-chloroplast.qzv \
   --m-sample-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt
 
+# Transferred arkinsons_table-no-mitochondria-no-chloroplast.qzv onto local computer and visualized on view.QIIME2.org
+
 # Generating a tree for phylogenetic diversity analyses
 qiime phylogeny align-to-tree-mafft-fasttree \
   --i-sequences parkinsons_rep-seqs.qza \
@@ -80,6 +82,8 @@ qiime diversity alpha-rarefaction \
   --m-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt \
   --o-visualization parkinsons_alpha-rarefaction-no-mitochondria-no-chloroplast.qzv
 
+# Transferred parkinsons_alpha-rarefaction-no-mitochondria-no-chloroplast.qzv onto local computer and visualized on view.QIIME2.org
+
 # Calculate alpha- and beta-diversity metrics
 qiime diversity core-metrics-phylogenetic \
   --i-phylogeny parkinsons_rooted-tree.qza \
@@ -95,6 +99,38 @@ qiime diversity alpha-group-significance \
   --o-visualization core-metrics-results/parkinsons_shannon_group_significance.qzv
 
 # Transferred parkinsons_shannon_group_significance.qzv to local computer
+
+# Create a new directory for parkinsons export and navigate to it
+
+(qiime2-amplicon-2025.4) root@stu-1130:/data/team5_parkinsons_data# mkdir parkinsons_export
+(qiime2-amplicon-2025.4) root@stu-1130:/data/team5_parkinsons_data# cd parkinsons_export
+
+# Export parkinsons_table-no-mitochondria-no-chloroplast.qza
+qiime tools export \
+  --input-path ../parkinsons_table-no-mitochondria-no-chloroplast.qza \
+  --output-path parkinsons_table-no-mitochondria-no-chloroplast_export
+
+# Navigate to parkinsons_table-no-mitochondria-no-chloroplast_export and convert .biom file to .txt file
+(qiime2-amplicon-2025.4) root@stu-1130:/data/team5_parkinsons_data/parkinsons_export# cd parkinsons_table-no-mitochondria-no-chloroplast_export/
+
+biom convert -i feature-table.biom --to-tsv -o feature-table.txt
+
+# Export parkinsons_rooted-tree.qza
+(qiime2-amplicon-2025.4) root@stu-1130:/data/team5_parkinsons_data# cd parkinsons_export
+
+qiime tools export \
+  --input-path ../parkinsons_rooted-tree.qza \
+  --output-path parkinsons_rooted-tree_export
+
+# Export parkinsons_taxonomy.qza
+(qiime2-amplicon-2025.4) root@stu-1130:/data/team5_parkinsons_data# cd parkinsons_export
+
+qiime tools export \
+  --input-path ../parkinsons_taxonomy.qza \
+  --output-path parkinsons_taxonomy_export
+
+# Transferred parkinsons_export to local computer
+# Transferred parkinsons_metadata.txt to local computer
 
 #### Data processing for GC dataset ####
 
