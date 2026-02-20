@@ -64,13 +64,37 @@ qiime feature-table summarize \
   --o-visualization parkinsons_table-no-mitochondria-no-chloroplast.qzv \
   --m-sample-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt
 
-# Generate a tree for phylogenetic diversity analyses
+# Generating a tree for phylogenetic diversity analyses
 qiime phylogeny align-to-tree-mafft-fasttree \
   --i-sequences parkinsons_rep-seqs.qza \
   --o-alignment parkinsons_aligned-rep-seqs.qza \
   --o-masked-alignment parkinsons_masked-aligned-rep-seqs.qza \
   --o-tree parkinsons_unrooted-tree.qza \
   --o-rooted-tree parkinsons_rooted-tree.qza
+
+# Alpha-rarefaction (detached screen named alpha_rarefaction)
+qiime diversity alpha-rarefaction \
+  --i-table  parkinsons_table-no-mitochondria-no-chloroplast.qza \
+  --i-phylogeny parkinsons_rooted-tree.qza \
+  --p-max-depth 20000 \
+  --m-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt \
+  --o-visualization parkinsons_alpha-rarefaction-no-mitochondria-no-chloroplast.qzv
+
+# Calculate alpha- and beta-diversity metrics
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny parkinsons_rooted-tree.qza \
+  --i-table parkinsons_table-no-mitochondria-no-chloroplast.qza \
+  --p-sampling-depth 10232 \
+  --m-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt \
+  --output-dir core-metrics-results
+
+# Calculate alpha-group-significance
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/shannon_vector.qza \
+  --m-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt \
+  --o-visualization core-metrics-results/shannon_group_significance.qzv
+
+# Transferred shannon_group_significance.qzv to local computer
 
 #### Data processing for GC dataset ####
 
