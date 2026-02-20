@@ -66,9 +66,9 @@ qiime feature-table summarize \
 
 # Generate a tree for phylogenetic diversity analyses
 qiime phylogeny align-to-tree-mafft-fasttree \
-  --i-sequences parkinsons_rep-seq.qza \
-  --o-alignment parkinsons_aligned-rep-seq.qza \
-  --o-masked-alignment parkinsons_masked-aligned-rep-seq.qza \
+  --i-sequences parkinsons_rep-seqs.qza \
+  --o-alignment parkinsons_aligned-rep-seqs.qza \
+  --o-masked-alignment parkinsons_masked-aligned-rep-seqs.qza \
   --o-tree parkinsons_unrooted-tree.qza \
   --o-rooted-tree parkinsons_rooted-tree.qza
 
