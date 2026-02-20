@@ -42,6 +42,16 @@ qiime feature-table tabulate-seqs \
   --i-data parkinsons_rep-seqs.qza \
   --o-visualization parkinsons_rep-seqs.qzv
 
+# Taxonomic analysis (detached screen named taxonomy)
+qiime feature-classifier classify-sklearn \
+  --i-classifier /datasets/classifiers/silva-138-99-515-806-nb-classifier.qza \
+  --i-reads parkinsons_rep-seqs.qza \
+  --o-classification parkinsons_taxonomy.qza
+
+qiime metadata tabulate \
+  --m-input-file parkinsons_taxonomy.qza \
+  --o-visualization parkinsons_taxonomy.qzv
+
 #### Data processing for GC dataset ####
 
 # Create a new directory for the gastric cancer dataset within data folder and navigate to it
