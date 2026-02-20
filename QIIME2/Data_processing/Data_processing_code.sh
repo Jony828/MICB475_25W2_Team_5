@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Create a new directory for team 6
+#### Data processing for Parkinson dataset ####
+
+# Create a new directory for the gastric cancer dataset within data folder and navigate to it
 (qiime2-amplicon-2025.4) root@stu-1130:/data# mkdir team5_parkinsons_data
+(qiime2-amplicon-2025.4) root@stu-1130:/data# cd team5_parkinsons_data
 
 # Go to /data/team5_parkinsons_data
 
@@ -39,7 +42,7 @@ qiime feature-table tabulate-seqs \
   --i-data parkinsons_rep-seqs.qza \
   --o-visualization parkinsons_rep-seqs.qzv
 
-# Data processing for GC dataset
+#### Data processing for GC dataset ####
 
 # Create a new directory for the gastric cancer dataset within data folder and navigate to it
 (qiime2-amplicon-2025.4) root@stu-1130:/data# mkdir team5_gc_data
