@@ -52,6 +52,18 @@ qiime metadata tabulate \
   --m-input-file parkinsons_taxonomy.qza \
   --o-visualization parkinsons_taxonomy.qzv
 
+# Removing mitochondria and chloroplast sequences
+qiime taxa filter-table \
+  --i-table parkinsons_table.qza \
+  --i-taxonomy parkinsons_taxonomy.qza \
+  --p-exclude mitochondria,chloroplast \
+  --o-filtered-table parkinsons_table-no-mitochondria-no-chloroplast.qza
+
+qiime feature-table summarize \
+  --i-table parkinsons_table-no-mitochondria-no-chloroplast.qza \
+  --o-visualization parkinsons_table-no-mitochondria-no-chloroplast.qzv \
+  --m-sample-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt
+
 #### Data processing for GC dataset ####
 
 # Create a new directory for the gastric cancer dataset within data folder and navigate to it
