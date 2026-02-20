@@ -92,9 +92,9 @@ qiime diversity core-metrics-phylogenetic \
 qiime diversity alpha-group-significance \
   --i-alpha-diversity core-metrics-results/shannon_vector.qza \
   --m-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt \
-  --o-visualization core-metrics-results/shannon_group_significance.qzv
+  --o-visualization core-metrics-results/parkinsons_shannon_group_significance.qzv
 
-# Transferred shannon_group_significance.qzv to local computer
+# Transferred parkinsons_shannon_group_significance.qzv to local computer
 
 #### Data processing for GC dataset ####
 
