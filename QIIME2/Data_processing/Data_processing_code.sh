@@ -64,6 +64,14 @@ qiime feature-table summarize \
   --o-visualization parkinsons_table-no-mitochondria-no-chloroplast.qzv \
   --m-sample-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt
 
+# Generate a tree for phylogenetic diversity analyses
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences parkinsons_rep-seq.qza \
+  --o-alignment parkinsons_aligned-rep-seq.qza \
+  --o-masked-alignment parkinsons_masked-aligned-rep-seq.qza \
+  --o-tree parkinsons_unrooted-tree.qza \
+  --o-rooted-tree parkinsons_rooted-tree.qza
+
 #### Data processing for GC dataset ####
 
 # Create a new directory for the gastric cancer dataset within data folder and navigate to it
