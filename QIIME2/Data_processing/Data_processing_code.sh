@@ -171,4 +171,91 @@ qiime feature-table tabulate-seqs \
   --i-data gc_rep-seqs.qza \
   --o-visualization gc_rep-seqs.qzv
 
+    # Taxonomic analysis 
+qiime feature-classifier classify-sklearn \
+  --i-classifier /datasets/classifiers/silva-138-99-515-806-nb-classifier.qza \
+  --i-reads gc_rep-seqs.qza \
+  --o-classification gc_taxonomy.qza
+
+qiime metadata tabulate \
+  --m-input-file gc_taxonomy.qza \
+  --o-visualization gc_taxonomy.qzv
+
+# Removing mitochondria and chloroplast sequences
+qiime taxa filter-table \
+  --i-table gc_table.qza \
+  --i-taxonomy gc_taxonomy.qza \
+  --p-exclude mitochondria,chloroplast \
+  --o-filtered-table gc_table-no-mitochondria-no-chloroplast.qza
+
+  # Removing samples below age 40 and over age 80
+  qiime feature-table filter-samples \
+  --i-table gc_table-no-mitochondria-no-chloroplast.qza \
+  --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
+  --p-where "Age >= 40 AND Age <= 80" \
+  --o-filtered-table gc_table_age40-80.qza
+  
+  qiime feature-table summarize \
+  --i-table gc_table_age40-80.qza \
+  --o-visualization gc_table_age40-80.qzv \
+  --m-sample-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv
+
+  # Transferred gc_table_age40-80.qzv onto local computer and visualized on view.QIIME2.org
+
+  # Generating a tree for phylogenetic diversity analyses
+  qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences gc_rep-seqs.qza \
+  --o-alignment gc_aligned-rep-seqs.qza \
+  --o-masked-alignment gc_masked-aligned-rep-seqs.qza \
+  --o-tree gc_unrooted-tree.qza \
+  --o-rooted-tree gc_rooted-tree.qza
+
+# Alpha-rarefaction
+qiime diversity alpha-rarefaction \
+  --i-table  parkinsons_table-no-mitochondria-no-chloroplast.qza \
+  --i-phylogeny parkinsons_rooted-tree.qza \
+  --p-max-depth 20000 \
+  --m-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt \
+  --o-visualization parkinsons_alpha-rarefaction-no-mitochondria-no-chloroplast.qzv
+
+qiime diversity alpha-rarefaction \
+  --i-table gc_table_age40-80.qza \
+  --i-phylogeny gc_rooted-tree.qza \
+  --p-max-depth 180000 \
+  --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
+  --o-visualization gc_alpha-rarefaction_age40-80.qzv
+
+  ## Confirm sampling depth then run below codes
+
+  qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny gc_rooted-tree.qza \
+  --i-table gc_table_age40-80.qza \
+  --p-sampling-depth 26244 \
+  --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
+  --output-dir gc_core-metrics-results
+
+  qiime diversity alpha-group-significance \
+  --i-alpha-diversity gc_core-metrics-results/shannon_vector.qza \
+  --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
+  --o-visualization gc_shannon_group_significance.qzv
+
+mkdir gc_export
+cd gc_export
+
+qiime tools export \
+  --input-path ../gc_table_age40-80.qza \
+  --output-path gc_table_age40-80_export
+
+cd gc_table_age40-80_export
+biom convert -i feature-table.biom --to-tsv -o feature-table.txt
+
+cd ../
+qiime tools export \
+  --input-path ../gc_rooted-tree.qza \
+  --output-path gc_rooted-tree_export
+
+  qiime tools export \
+  --input-path ../gc_taxonomy.qza \
+  --output-path gc_taxonomy_export
+
 
