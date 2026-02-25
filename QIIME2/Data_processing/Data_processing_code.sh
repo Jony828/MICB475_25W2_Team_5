@@ -212,21 +212,15 @@ qiime taxa filter-table \
 
 # Alpha-rarefaction
 qiime diversity alpha-rarefaction \
-  --i-table  parkinsons_table-no-mitochondria-no-chloroplast.qza \
-  --i-phylogeny parkinsons_rooted-tree.qza \
-  --p-max-depth 20000 \
-  --m-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt \
-  --o-visualization parkinsons_alpha-rarefaction-no-mitochondria-no-chloroplast.qzv
-
-qiime diversity alpha-rarefaction \
   --i-table gc_table_age40-80.qza \
   --i-phylogeny gc_rooted-tree.qza \
   --p-max-depth 180000 \
   --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
   --o-visualization gc_alpha-rarefaction_age40-80.qzv
 
-  ## Confirm sampling depth then run below codes
+# Transferred gc_alpha-rarefaction_age40-80.qzv onto local computer and visualized on view.QIIME2.org
 
+# Calculate alpha- and beta-diversity metrics
   qiime diversity core-metrics-phylogenetic \
   --i-phylogeny gc_rooted-tree.qza \
   --i-table gc_table_age40-80.qza \
@@ -234,28 +228,41 @@ qiime diversity alpha-rarefaction \
   --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
   --output-dir gc_core-metrics-results
 
+# Calculate alpha-group-significance
   qiime diversity alpha-group-significance \
   --i-alpha-diversity gc_core-metrics-results/shannon_vector.qza \
   --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
   --o-visualization gc_shannon_group_significance.qzv
 
+# Transferred gc_shannon_group_significance.qzv to local computer
+
+# Create a new directory for gc export and navigate to it
 mkdir gc_export
 cd gc_export
 
+# Export gc_table_age40-80.qza
 qiime tools export \
   --input-path ../gc_table_age40-80.qza \
   --output-path gc_table_age40-80_export
 
+# Navigate to gc_table_age40-80_export and convert .biom file to .txt file
 cd gc_table_age40-80_export
 biom convert -i feature-table.biom --to-tsv -o feature-table.txt
 
+# Export gc_rooted-tree.qza
 cd ../
 qiime tools export \
   --input-path ../gc_rooted-tree.qza \
   --output-path gc_rooted-tree_export
 
+# Export gc_taxonomy.qza
   qiime tools export \
   --input-path ../gc_taxonomy.qza \
   --output-path gc_taxonomy_export
+
+# Transferred gc_export to local computer
+# Transferred gastric_cancer_metadata.txt to local computer
+
+  
 
 
