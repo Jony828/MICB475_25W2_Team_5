@@ -64,7 +64,7 @@ qiime feature-table summarize \
   --o-visualization parkinsons_table-no-mitochondria-no-chloroplast.qzv \
   --m-sample-metadata-file /datasets/project_2/parkinsons/parkinsons_metadata.txt
 
-# Transferred arkinsons_table-no-mitochondria-no-chloroplast.qzv onto local computer and visualized on view.QIIME2.org
+# Transferred parkinsons_table-no-mitochondria-no-chloroplast.qzv onto local computer and visualized on view.QIIME2.org
 
 # Generating a tree for phylogenetic diversity analyses
 qiime phylogeny align-to-tree-mafft-fasttree \
@@ -171,7 +171,7 @@ qiime feature-table tabulate-seqs \
   --i-data gc_rep-seqs.qza \
   --o-visualization gc_rep-seqs.qzv
 
-    # Taxonomic analysis 
+# Taxonomic analysis 
 qiime feature-classifier classify-sklearn \
   --i-classifier /datasets/classifiers/silva-138-99-515-806-nb-classifier.qza \
   --i-reads gc_rep-seqs.qza \
@@ -188,7 +188,7 @@ qiime taxa filter-table \
   --p-exclude mitochondria,chloroplast \
   --o-filtered-table gc_table-no-mitochondria-no-chloroplast.qza
 
-  # Removing samples below age 40 and over age 80
+# Removing samples below age 40 and over age 80
   qiime feature-table filter-samples \
   --i-table gc_table-no-mitochondria-no-chloroplast.qza \
   --m-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv \
@@ -200,9 +200,9 @@ qiime taxa filter-table \
   --o-visualization gc_table_age40-80.qzv \
   --m-sample-metadata-file /datasets/project_2/gastric_cancer/gastric_cancer_metadata.tsv
 
-  # Transferred gc_table_age40-80.qzv onto local computer and visualized on view.QIIME2.org
+# Transferred gc_table_age40-80.qzv onto local computer and visualized on view.QIIME2.org
 
-  # Generating a tree for phylogenetic diversity analyses
+# Generating a tree for phylogenetic diversity analyses
   qiime phylogeny align-to-tree-mafft-fasttree \
   --i-sequences gc_rep-seqs.qza \
   --o-alignment gc_aligned-rep-seqs.qza \
