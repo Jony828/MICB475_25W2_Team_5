@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # Load libraries
 library(tidyverse)
 library(phyloseq)
