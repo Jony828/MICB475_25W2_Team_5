@@ -53,7 +53,7 @@ PD_tax_mat <- PD_tax %>% select(-Confidence) %>%
   as.matrix()
 
 GC_tax_mat <- GC_tax %>% select(-Confidence) %>%
-  separate(col=Taxon, sep=";"
+  separate(col=Taxon, sep="; "
            , into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species")) %>%
   as.matrix()
 
@@ -76,3 +76,14 @@ GC_TAX <- tax_table(GC_tax_mat)
 PD <- phyloseq(PD_OTU, PD_SAMP, PD_TAX, PD_tree)
 
 GC <- phyloseq(GC_OTU, GC_SAMP, GC_TAX, GC_tree)
+
+#### Filtering ####
+# Remove ASVs that have less than 5 counts total
+PD_nolow <- filter_taxa(PD, function(x) sum (x)>=5, prune = TRUE)
+
+GC_nolow <- filter_taxa(GC, function(x) sum (x)>=5, prune = TRUE)
+
+# Remove samples with less than 100 reads
+PD_final <- prune_samples(sample_sums(PD_nolow)>=100, PD_nolow)
+
+GC_final <- prune_samples(sample_sums(GC_nolow)>=100, GC_nolow)
