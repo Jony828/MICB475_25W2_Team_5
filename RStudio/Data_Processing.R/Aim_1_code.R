@@ -1,48 +1,95 @@
 #!/usr/bin/env Rscript
+# Load libraries
 library(tidyverse)
-library(dplyr)
+library(phyloseq)
+library(ape)
 
-# Load metadata
-#Parkinsons
-Parkinsons_data <- read_delim(file = "parkinsons_metadata.txt", delim = "\t")
+#### Load metadata ####
+# Parkinsons
+Parkinsons_data <- read_delim("PD Files/parkinsons_metadata.txt", delim = "\t") %>%
+  rename(SampleID = `#SampleID`) %>%
+  mutate(Dataset = "PD")
 
-#Parkinsons features table
-Parkinsons_otu <- read_delim(file="PDfeature-table.txt", delim = "\t", skip=1)
+# Gastric Cancer
+GC_data <- read_delim("GC Files/gastric_cancer_metadata.txt", delim = "\t") %>%
+  rename(SampleID = `sample-id`) %>%
+  rename(Disease = `original-sample-id`) %>%
+  mutate(Dataset = "GC")
 
-#Parkinsons taxonomy file
-Parkinsons_tax <- read_delim(file = "PD_taxonomy.tsv", delim="\t")
-
-#Gastric Cancer
-GC_data <- read_delim(file = "gastric_cancer_metadata.txt", delim = "\t")
-
-#Gastric Cancer features table
-GC_otu <- read_delim(file="gc_feature-table.txt", delim = "\t", skip=1)
-
-#Gastric Cancer taxonomy file
-GC_tax <- read_delim(file = "gc_taxonomy.tsv", delim="\t")
-
-#Adjust Column name of PD to match GC
-###
 colnames(GC_data)
-colnames(Parkinsons_data)
-names(Parkinsons_data)[1] <- "sample-id"
-# Join datasets
-##Metadata
-GC_PD_Metadata <- full_join(Parkinsons_data, GC_data)
 
-##Otu
-GC_PD_Otu <- full_join(Parkinsons_otu, GC_otu)
+#### Load OTU tables ####
+# Parkinsons
+Parkinsons_otu <- read_delim("PD Files/PDfeature-table.txt", delim = "\t", skip = 1)
+PD_otu_mat <- as.matrix(Parkinsons_otu[,-1])
+rownames(PD_otu_mat) <- Parkinsons_otu$`#OTU ID`
+PD_OTU <- otu_table(PD_otu_mat, taxa_are_rows = TRUE)
 
-##Taxonomy
-GC_PD_taxonomy <- full_join(Parkinsons_tax, GC_tax)
+# Gastric Cancer
+GC_otu <- read_delim("GC Files/gc_feature-table.txt", delim = "\t", skip = 1)
+GC_otu_mat <- as.matrix(GC_otu[,-1])
+rownames(GC_otu_mat) <- GC_otu$`#OTU ID`
+GC_OTU <- otu_table(GC_otu_mat, taxa_are_rows = TRUE)
 
-######### Saving data ##########
-##this one is for individual use, as an R object
-save(GC_PD_Metadata, file="merged_data/GC_PD_Metadata.RData")
+#### Load taxonomy ####
+# Parkinsons
+Parkinsons_tax <- read_delim("PD Files/PD_taxonomy.tsv", delim = "\t")
+PD_tax_mat <- Parkinsons_tax %>%
+  select(-Confidence) %>%
+  separate(Taxon, sep = "; ", into = c("Domain","Phylum","Class","Order","Family","Genus","Species")) %>%
+  column_to_rownames(var = "Feature ID") %>%
+  as.matrix()
+PD_TAX <- tax_table(PD_tax_mat)
 
-##saves it into human readable file  == better for sharing
-write.table(GC_PD_Metadata, file="merged_data/GC_PD_Metadata.RData", sep="\t", quote = FALSE, row.names = FALSE)
+# Gastric Cancer
+GC_tax <- read_delim("GC Files/gc_taxonomy.tsv", delim = "\t")
+GC_tax_mat <- GC_tax %>%
+  select(-Confidence) %>%
+  separate(Taxon, sep = "; ", into = c("Domain","Phylum","Class","Order","Family","Genus","Species")) %>%
+  column_to_rownames(var = "Feature ID") %>%
+  as.matrix()
+GC_TAX <- tax_table(GC_tax_mat)
 
-save(GC_PD_Otu, file = "merged_data/GC_PD_Otu.RData")
-save(GC_PD_taxonomy, file="merged_data/GC_PD_taxonomy.RData")
+#### Format sample metadata ####
+# Parkinsons
+PD_samp_df <- Parkinsons_data %>%
+  column_to_rownames(var = "SampleID")
+PD_SAMP <- sample_data(PD_samp_df)
 
+# Gastric Cancer
+GC_samp_df <- GC_data %>%
+  column_to_rownames(var = "SampleID")
+GC_SAMP <- sample_data(GC_samp_df)
+
+#### Rooted Trees ####
+#Parkinsons
+PD_phylotreefp <- "PD Files/PD_tree.nwk"
+PD_phylotree <- read.tree(PD_phylotreefp)
+
+#GC
+GC_phylotreefp <- "GC Files/gc_tree.nwk"
+GC_phylotree <- read.tree(GC_phylotreefp)
+
+#### Create phyloseq objects ####
+PD_phy <- phyloseq(PD_OTU, PD_TAX, PD_SAMP, PD_phylotreefp)
+GC_phy <- phyloseq(GC_OTU, GC_TAX, GC_SAMP, GC_phylotreefp)
+
+#### Merge datasets ####
+GC_PD_phy <- merge_phyloseq(PD_phy, GC_phy)
+
+# Extract components
+GC_PD_OTU <- otu_table(GC_PD_phy)
+GC_PD_SAMP <- sample_data(GC_PD_phy)
+GC_PD_TAX <- tax_table(GC_PD_phy)
+
+#### Save merged data ####
+# Save phyloseq object
+save(GC_PD_phy, file = "merged_data/GC_PD_phyloseq.RData")
+
+# Save metadata separately
+GC_PD_metadata_df <- as.data.frame(GC_PD_SAMP)
+save(GC_PD_metadata_df, file = "merged_data/GC_PD_Metadata.tsv")
+
+#Save OTU and taxonomy tables separately
+save(GC_PD_OTU, file = "merged_data/GC_PD_OTU.RData")
+save(GC_PD_TAX, file = "merged_data/GC_PD_taxonomy.RData")
