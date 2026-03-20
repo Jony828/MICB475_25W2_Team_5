@@ -71,8 +71,8 @@ GC_phylotreefp <- "GC Files/gc_tree.nwk"
 GC_phylotree <- read.tree(GC_phylotreefp)
 
 #### Create phyloseq objects ####
-PD_phy <- phyloseq(PD_OTU, PD_TAX, PD_SAMP, PD_phylotreefp)
-GC_phy <- phyloseq(GC_OTU, GC_TAX, GC_SAMP, GC_phylotreefp)
+PD_phy <- phyloseq(PD_OTU, PD_TAX, PD_SAMP)
+GC_phy <- phyloseq(GC_OTU, GC_TAX, GC_SAMP)
 
 #### Merge datasets ####
 GC_PD_phy <- merge_phyloseq(PD_phy, GC_phy)
