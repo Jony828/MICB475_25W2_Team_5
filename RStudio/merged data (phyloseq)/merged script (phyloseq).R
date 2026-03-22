@@ -3,6 +3,8 @@
 library(tidyverse)
 library(phyloseq)
 library(ape)
+library(dplyr)
+library(stringr)
 
 #### Load metadata ####
 # Parkinsons
@@ -14,9 +16,11 @@ Parkinsons_data <- read_delim("PD Files/parkinsons_metadata.txt", delim = "\t") 
 GC_data <- read_delim("GC Files/gastric_cancer_metadata.txt", delim = "\t") %>%
   rename(SampleID = `sample-id`) %>%
   rename(Disease = `original-sample-id`) %>%
-  mutate(Dataset = "GC")
+  mutate(Dataset = "GC") %>%
+  mutate(Disease = str_remove(Disease, "\\..*"))
 
 colnames(GC_data)
+colnames(Parkinsons_data)
 
 #### Load OTU tables ####
 # Parkinsons
@@ -60,8 +64,10 @@ PD_SAMP <- sample_data(PD_samp_df)
 GC_samp_df <- GC_data %>%
   column_to_rownames(var = "SampleID")
 GC_SAMP <- sample_data(GC_samp_df)
+colnames(PD_samp_df)
+colnames(GC_samp_df)
 
-#### Rooted Trees ####
+#### Rooted Trees (not needed) ####
 #Parkinsons
 PD_phylotreefp <- "PD Files/PD_tree.nwk"
 PD_phylotree <- read.tree(PD_phylotreefp)
@@ -71,8 +77,8 @@ GC_phylotreefp <- "GC Files/gc_tree.nwk"
 GC_phylotree <- read.tree(GC_phylotreefp)
 
 #### Create phyloseq objects ####
-PD_phy <- phyloseq(PD_OTU, PD_TAX, PD_SAMP, PD_phylotreefp)
-GC_phy <- phyloseq(GC_OTU, GC_TAX, GC_SAMP, GC_phylotreefp)
+PD_phy <- phyloseq(PD_OTU, PD_TAX, PD_SAMP)
+GC_phy <- phyloseq(GC_OTU, GC_TAX, GC_SAMP)
 
 #### Merge datasets ####
 GC_PD_phy <- merge_phyloseq(PD_phy, GC_phy)
@@ -84,11 +90,12 @@ GC_PD_TAX <- tax_table(GC_PD_phy)
 
 #### Save merged data ####
 # Save phyloseq object
-save(GC_PD_phy, file = "merged_data/GC_PD_phyloseq.RData")
+save(GC_PD_phy, file = "merged_data/GC_PD_phyloseq(no_tree).RData")
 
 # Save metadata separately
-GC_PD_metadata_df <- as.data.frame(GC_PD_SAMP)
-save(GC_PD_metadata_df, file = "merged_data/GC_PD_Metadata.tsv")
+GC_PD_meta <- as.data.frame(GC_PD_SAMP)
+save(GC_PD_SAMP, file = "merged_data/GC_PD_Metadata.RData")
+print(GC_PD_meta)
 
 #Save OTU and taxonomy tables separately
 save(GC_PD_OTU, file = "merged_data/GC_PD_OTU.RData")
