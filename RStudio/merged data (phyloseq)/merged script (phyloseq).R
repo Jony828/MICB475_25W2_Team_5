@@ -83,6 +83,10 @@ GC_phy <- phyloseq(GC_OTU, GC_TAX, GC_SAMP)
 #### Merge datasets ####
 GC_PD_phy <- merge_phyloseq(PD_phy, GC_phy)
 
+# Change "HC" to "Control" in the Disease column
+sample_data(GC_PD_phy)$Disease <- gsub("^HC$", "Control",
+                                       sample_data(GC_PD_phy)$Disease)
+
 # Extract components
 GC_PD_OTU <- otu_table(GC_PD_phy)
 GC_PD_SAMP <- sample_data(GC_PD_phy)
@@ -90,7 +94,7 @@ GC_PD_TAX <- tax_table(GC_PD_phy)
 
 #### Save merged data ####
 # Save phyloseq object
-save(GC_PD_phy, file = "merged_data/GC_PD_phyloseq(no_tree).RData")
+save(GC_PD_phy, file = "merged_data/GC_PD_phyloseq(no_tree)_labeled.RData")
 
 # Save metadata separately
 GC_PD_meta <- as.data.frame(GC_PD_SAMP)
