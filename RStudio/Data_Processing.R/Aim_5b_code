@@ -1,0 +1,137 @@
+#### Functional Analysis ####
+library(ggpicrust2)
+library(tidyverse)
+library(ggplot2)
+
+####PD vs control####
+#Read MetaData
+PD_data <- read_delim("PD Files/parkinsons_metadata.txt", delim = "\t") %>%
+  rename(SampleID = `#SampleID`)
+
+#Read KO and set column names
+KO_PDvsCtrl <- read_delim("picrust/PD/ko_pred_metagenome_unstrat.tsv", delim = "\t") %>%
+  column_to_rownames(var = colnames(.)[1])
+
+#Perform daa using LinDA
+daa_PDvsCtrl <- pathway_daa(abundance = KO_PDvsCtrl,
+                            metadata = PD_data,
+                            group = "Disease", #variable of interest
+                            daa_method = "LinDA", select = NULL, 
+                            reference = NULL)
+
+#Annote pathway results to using KO to KEGG conversion
+daa_PDvsCtrl_annot <- pathway_annotation(pathway = "KO",
+                                         daa_results_df = daa_PDvsCtrl,
+                                         ko_to_kegg = TRUE)
+saveRDS(daa_PDvsCtrl_annot,'picrust/daa_PDvsCtrl_annot.rds')
+
+#Filtered under Ideal P threshold
+source('ggpicrust2_errorbar_function_fixed.R')
+daa_PDvsCtrl_annot_f <- daa_PDvsCtrl_annot %>% filter(p_adjust< 2e-5, abs(log2FoldChange) > 0.7)
+
+#Generate pathway PCA plot
+pca_PD <- pathway_pca(abundance = KO_PDvsCtrl,
+                      metadata = PD_data, 
+                      group = "Disease")
+
+ggsave('pca_PD.png', plot = pca_PD)
+
+#Generate Bar Plot
+PD_barplot <- ggplot(daa_PDvsCtrl_annot_f,
+                     aes(x = reorder(pathway_name, log2FoldChange),
+                         y = log2FoldChange,
+                         fill = p_adjust)) +
+  geom_col(width = 0.5) +
+  coord_flip() +
+  # WRAPPING CODE: This breaks the labels at 30 characters
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+  # Color gradient for p_adjust
+  scale_fill_gradientn(
+    colors = c("#00008B", "#8B0000", "#FF0000"),   # dark blue -> dark red -> bright red
+    values = scales::rescale(c(0, 0.01, max(daa_PDvsCtrl_annot_f$p_adjust, na.rm = TRUE))),
+    limits = c(0, max(daa_PDvsCtrl_annot_f$p_adjust, na.rm = TRUE)),
+  ) +
+  labs(title = "PD vs Control",
+       x = "Pathways",
+       y = "log2 Fold Change",
+       fill = "p adjust") +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "right",
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.major.y = element_blank()
+  )
+print(PD_barplot)
+ggsave("png/PD_barplot.png", plot = PD_barplot, width = 10, height = 6)
+
+####GC vs control####
+#Read MetaData
+GC_data <- read_delim("GC Files/gastric_cancer_metadata.txt", delim = "\t") %>%
+  rename(SampleID = `sample-id`) %>%
+  rename(Disease = `original-sample-id`) %>%
+  mutate(Disease = str_remove(Disease, "\\..*")) %>%
+  filter(Disease %in% c("GC", "HC")) %>%
+  mutate(Disease = recode(Disease, "HC" = "Control"))
+
+# Read KO and set column names
+KO_GC <- read.delim("picrust/GC/ko_pred_metagenome_unstrat.tsv",row.names = 1)
+common_samples <- intersect(GC_data$SampleID, colnames(KO_GC))
+KO_GCvsCtrl_a <- KO_GC[, common_samples]
+
+#Perform daa using LinDA
+daa_GCvsCtrl <- pathway_daa(abundance = KO_GCvsCtrl_a,
+                            metadata = GC_data,
+                            group = "Disease", #variable of interest
+                            daa_method = "LinDA", select = NULL, 
+                            reference = NULL)
+
+##Annote pathway results to using KO to KEGG conversion
+daa_GCvsCtrl_annot <- pathway_annotation(pathway = "KO",
+                                         daa_results_df = daa_GCvsCtrl,
+                                         ko_to_kegg = TRUE)
+saveRDS(daa_GCvsCtrl_annot,'picrust/daa_GCvsCtrl_annot.rds')
+
+
+##Filtered under Ideal P threshold
+daa_GCvsCtrl_annot_f <- daa_GCvsCtrl_annot %>% 
+  filter(p_adjust< 5e-11, abs(log2_fold_change) > 8) %>%
+  mutate(group2 = recode(group2, "HC" = "Control"))
+
+#Generate pathway PCA plot
+pca_GC <- pathway_pca(abundance = KO_GCvsCtrl_a,
+                      metadata = GC_data, 
+                      group = "Disease")
+ggsave('png/pca_GC.png', plot = pca_GC, width = 9, height = 10)
+
+#Generate Bar Plot
+GC_barplot <- ggplot(daa_GCvsCtrl_annot_f,
+                     aes(x = reorder(pathway_name, log2_fold_change),
+                         y = log2_fold_change,
+                         fill = p_adjust)) +   # numeric fill
+  geom_col(width = 0.5) +
+  coord_flip() +
+  # WRAPPING CODE: This breaks the labels at 30 characters
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 30)) +
+  # Color gradient for p_adjust
+  scale_fill_gradientn(
+    colors = c("#00008B", "#8B0000", "#FF0000"),   # dark blue -> dark red -> bright red
+    values = scales::rescale(c(0, 0.01, max(daa_GCvsCtrl_annot_f$p_adjust, na.rm = TRUE))),
+    limits = c(0, max(daa_GCvsCtrl_annot_f$p_adjust, na.rm = TRUE)),
+  ) +
+  
+  labs(title = "GC vs Control",
+       x = "Pathways",
+       y = "log2 Fold Change",
+       fill = "p adjust") +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "right",
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    panel.grid.major.y = element_blank()
+  )
+print(GC_barplot)
+ggsave("png/GC_barplot.png", plot = GC_barplot, width = 10, height = 6)
