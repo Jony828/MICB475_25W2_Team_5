@@ -87,3 +87,21 @@ GC_nolow <- filter_taxa(GC, function(x) sum (x)>=5, prune = TRUE)
 PD_final <- prune_samples(sample_sums(PD_nolow)>=100, PD_nolow)
 
 GC_final <- prune_samples(sample_sums(GC_nolow)>=100, GC_nolow)
+
+#### Rarefy Datasets ####
+# PD: already rarefied in QIIME 2, do not rarefy again
+# GC: rarefy in R to match PD
+GC_rare <- rarefy_even_depth(GC_final, rngseed = 1, sample.size = 10232)
+
+# Create phyloseq objects without trees trees
+PD_notree <- phyloseq(otu_table(PD_final), sample_data(PD_final), tax_table(PD_final))
+GC_notree <- phyloseq(otu_table(GC_rare), sample_data(GC_rare), tax_table(GC_rare))
+
+GC_PD_notree <- merge_phyloseq(PD_notree, GC_notree)
+
+save(PD_final, file ="PD_final.RData")
+
+save(GC_final, file ="GC_final.RData")
+save(GC_rare, file = "GC_rare.RData")
+
+save(GC_PD_notree, file = "GC_PD_notree.RData")
