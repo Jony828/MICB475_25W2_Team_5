@@ -1,101 +1,139 @@
+### ISA
+
 library(phyloseq)
 library(tidyverse)
 library(indicspecies)
 library(dplyr)
 
-#### Load phyloseq object ####
+# Load separate phyloseqs
+load("PD_phy.RData")
+load("GC_phy.RData")
 
-load("~/Desktop/MICB475_R/Project/new/GC_PD_phyloseq(no_tree).RData")
+### Run PD analysis
+PD_meta <- data.frame(sample_data(PD_phy))
 
-meta <- data.frame(sample_data(GC_PD_phy))
-
-# Filter metadata to remove other GC stages
-
-meta_filtered <- meta %>%
-  dplyr::filter(
-    Disease %in% c("PD", "Control", "GC", "HC")
-  )
-
-# Rename column groups
-meta_filtered$Group_clean <- dplyr::case_when(
-  meta_filtered$Dataset == "PD" & meta_filtered$Disease == "PD" ~ "PD",
-  meta_filtered$Dataset == "PD" & meta_filtered$Disease == "Control" ~ "PD_control",
-  
-  meta_filtered$Dataset == "GC" & meta_filtered$Disease == "GC" ~ "GC",
-  meta_filtered$Dataset == "GC" & meta_filtered$Disease == "HC" ~ "GC_control"
+# Define groups
+PD_meta$Group_clean <- case_when(
+  PD_meta$Disease == "PD" ~ "PD",
+  PD_meta$Disease == "Control" ~ "PD_control"
 )
 
-# Make the Group_clean column into a categorical variable (factor)
-meta_filtered$Group_clean <- as.factor(meta_filtered$Group_clean)
+# Convert to factor
+PD_meta$Group_clean <- as.factor(PD_meta$Group_clean)
 
-# Check how many samples are in each group
-table(meta_filtered$Group_clean)
+# Put cleaned group column back into PD_phy
+sample_data(PD_phy)$Group_clean <- PD_meta$Group_clean
 
-
-# Subset the phyloseq and put cleaned group column back to the phyloseq object
-
-samples_to_keep <- rownames(meta_filtered)
-
-physeq_filtered <- prune_samples(samples_to_keep, GC_PD_phy)
-
-sample_data(physeq_filtered)$Group_clean <- meta_filtered$Group_clean
-table(sample_data(physeq_filtered)$Group_clean)
-
-all(rownames(meta_filtered) == sample_names(physeq_filtered))
-
-sample_data(physeq_filtered) <- phyloseq::sample_data(meta_filtered)
-table(sample_data(physeq_filtered)$Group_clean)
-
-
-#### Glom to genus ####
-physeq_genus <- tax_glom(physeq_filtered, "Genus", NArm = FALSE)
+#### Glom to Genus ####
+PD_phy_genus <- tax_glom(PD_phy, "Genus", NArm = FALSE)
 
 #### Convert counts to relative abundance ####
-physeq_genus_RA <- transform_sample_counts(
-  physeq_genus,
+PD_phy_genus_RA <- transform_sample_counts(
+  PD_phy_genus,
   function(x) x / sum(x)
 )
 
 #### Filter rare taxa (present in at least 10% of samples) ####
-physeq_genus_RA <- filter_taxa(
-  physeq_genus_RA,
+PD_phy_genus_RA <- filter_taxa(
+  PD_phy_genus_RA,
   function(x) sum(x > 0) > 0.1 * length(x),
   TRUE
 )
 
-#### Make sure the grouping column is a factor ####
-sample_data(physeq_genus_RA)$Group_clean <- 
-  as.factor(sample_data(physeq_genus_RA)$Group_clean)
+#### Make sure Group_clean is a factor
+sample_data(PD_phy_genus_RA)$Group_clean <- as.factor(sample_data(PD_phy_genus_RA)$Group_clean)
 
 #### Run Indicator Species Analysis ####
-isa_result <- multipatt(
-  t(otu_table(physeq_genus_RA)),
-  cluster = sample_data(physeq_genus_RA)$Group_clean,
+PD_isa_result <- multipatt(
+  t(otu_table(PD_phy_genus_RA)),
+  cluster = sample_data(PD_phy_genus_RA)$Group_clean,
   func = "IndVal.g",
   control = how(nperm = 999)
 )
 
-#### Prepare taxonomy table for joining ####
-tax_df <- tax_table(physeq_genus_RA) %>%
+#### Prepare taxonomy table for joining
+PD_tax_df <- tax_table(PD_phy_genus_RA) %>%
   as.data.frame() %>%
   rownames_to_column(var = "ASV")
 
-#### Extract significant indicator taxa (p < 0.05) ####
-isa_significant <- isa_result$sign %>%
+#### Extract significant indicator taxa (p < 0.05)
+PD_isa_significant <- PD_isa_result$sign %>%
   rownames_to_column(var = "ASV") %>%
-  left_join(tax_df, by = "ASV") %>%
+  left_join(PD_tax_df, by = "ASV") %>%
   filter(p.value < 0.05)
 
-#### Strongest association per ASV ####
-isa_best <- isa_significant %>%
-  group_by(ASV) %>%
-  slice_max(stat, n = 1) %>%
-  ungroup()
+#### Strong indicators only (stat > 0.8)
+PD_isa_strong <- PD_isa_best %>%
+  filter(stat > 0.8)
 
-#### Strong indicators only (stat > 0.7) ####
-isa_strong <- isa_best %>%
-  filter(stat > 0.7)
 
-#### View results ####
-View(isa_best)     
-View(isa_strong)
+### GC ISA
+
+# Get metadata from GC_phy
+GC_meta <- data.frame(sample_data(GC_phy))
+
+# Keep only GC cases and HC controls
+GC_meta_filtered <- GC_meta %>%
+  filter(Disease %in% c("GC", "HC"))
+
+# Define groups
+GC_meta_filtered$Group_clean <- case_when(
+  GC_meta_filtered$Disease == "GC" ~ "GC",
+  GC_meta_filtered$Disease == "HC" ~ "GC_control"
+)
+
+# Convert to factor
+GC_meta_filtered$Group_clean <- as.factor(GC_meta_filtered$Group_clean)
+
+# Subset phyloseq object to keep only these samples
+samples_to_keep <- rownames(GC_meta_filtered)
+GC_phy <- prune_samples(samples_to_keep, GC_phy)
+
+# Put cleaned group column back into GC_phy
+sample_data(GC_phy)$Group_clean <- GC_meta_filtered$Group_clean
+
+# Glom to Genus
+GC_phy_genus <- tax_glom(GC_phy, "Genus", NArm = FALSE)
+
+# Convert counts to relative abundance
+GC_phy_genus_RA <- transform_sample_counts(
+  GC_phy_genus,
+  function(x) x / sum(x)
+)
+
+# Filter rare taxa (present in at least 10% of samples)
+GC_phy_genus_RA <- filter_taxa(
+  GC_phy_genus_RA,
+  function(x) sum(x > 0) > 0.1 * length(x),
+  TRUE
+)
+
+# Ensure Group_clean is factor
+sample_data(GC_phy_genus_RA)$Group_clean <- as.factor(sample_data(GC_phy_genus_RA)$Group_clean)
+
+# Run Indicator Species Analysis
+GC_isa_result <- multipatt(
+  t(otu_table(GC_phy_genus_RA)),
+  cluster = sample_data(GC_phy_genus_RA)$Group_clean,
+  func = "IndVal.g",
+  control = how(nperm = 999)
+)
+
+# Prepare taxonomy table
+GC_tax_df <- tax_table(GC_phy_genus_RA) %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "ASV")
+
+# Extract significant indicator taxa (p < 0.05)
+GC_isa_significant <- GC_isa_result$sign %>%
+  rownames_to_column(var = "ASV") %>%
+  left_join(GC_tax_df, by = "ASV") %>%
+  filter(p.value < 0.05)
+
+# Strong indicators only (stat > 0.8)
+GC_isa_strong <- GC_isa_best %>%
+  filter(stat > 0.8)
+
+# View results
+View(GC_isa_best)
+View(GC_isa_strong)
